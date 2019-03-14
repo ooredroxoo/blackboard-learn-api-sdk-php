@@ -1,0 +1,21 @@
+{
+  "name" : "ooredroxoo/blackboard-learn-api-sdk-php",
+  "description": "Blackboard Learn PHP SDK for REST APIs",
+  "type": "library",
+  "keywords": ["blackboard", "learn", "sdk", "rest"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Rafael Nascimento Sampaio",
+      "email": "ooredroxoo@gmail.com",
+      "homepage": "https://rafaelns.com.br",
+      "role": "developer"
+    }
+  ],
+  "require": {
+    "ext-json" : "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit" : "7.5.6"
+  }
+}
