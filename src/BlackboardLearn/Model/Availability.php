@@ -11,16 +11,23 @@ class Availability implements JsonSerializable
 
     /** @var string $available */
     protected $available;
+    /** @var Duration $duration */
+    protected $duration;
 
     /**
      * Availability constructor.
      * @param string $available
+     * @param Duration|null $duration
      * @throws InvalidArgumentException
      */
-    public function __construct($available)
+    public function __construct($available, $duration = null)
     {
         if($available !== 'Yes' && $available !== 'No') {
             throw new InvalidArgumentException('Availability should be initialized only with yes or no as values.');
+        }
+
+        if($duration !== null) {
+            $this->duration = $duration;
         }
 
         $this->available = $available;
@@ -45,6 +52,11 @@ class Availability implements JsonSerializable
     {
         $jsonRepresentation = new \stdClass;
         $jsonRepresentation->available = $this->available;
+
+        if($this->duration !== null) {
+            $jsonRepresentation->duration = $this->duration;
+        }
+
         return $jsonRepresentation;
     }
 }

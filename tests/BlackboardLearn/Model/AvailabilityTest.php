@@ -47,4 +47,23 @@ class AvailabilityTest extends TestCase
         $actualJsonObject = new Availability(Availability::AVAILABILITY_UNAVAILABLE);
         $this->assertEquals(json_encode($expectedJsonObject), json_encode($actualJsonObject), 'Availability should be JSON serializable to be used with our REST API.');
     }
+
+    /** @test */
+    public function when_json_encoded_duration_should_not_be_displayed_if_isnt_set()
+    {
+        $expectedJsonObject = new \stdClass;
+        $expectedJsonObject->available = 'Yes';
+        $actualJsonObject = new Availability(Availability::AVAILABILITY_AVAILABLE);
+        $this->assertEquals(json_encode($expectedJsonObject), json_encode($actualJsonObject), 'Availability should not display duration if it wasn`t set with in!');
+
+        $expectedJsonObject = null;
+        $actualJsonObject = null;
+
+        $continuousDuration = \BlackboardLearn\Model\Duration::createContinuousDuration();
+        $expectedJsonObject = new \stdClass;
+        $expectedJsonObject->available = 'Yes';
+        $expectedJsonObject->duration = $continuousDuration;
+        $actualJsonObject = new Availability(Availability::AVAILABILITY_AVAILABLE, $continuousDuration);
+        $this->assertEquals(json_encode($expectedJsonObject), json_encode($actualJsonObject), 'Availability should display duration if it was set.');
+    }
 }
