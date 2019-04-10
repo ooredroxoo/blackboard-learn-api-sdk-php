@@ -5,8 +5,9 @@ use BlackboardLearn\Model\AccessToken;
 use BlackboardLearn\Model\ClientCredentials;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use OAuthServiceInterface;
 
-class OAuthService
+class OAuthService implements OAuthServiceInterface
 {
     /** @var Client $client */
     protected $client;
