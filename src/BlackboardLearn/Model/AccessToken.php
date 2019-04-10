@@ -1,6 +1,8 @@
 <?php namespace BlackboardLearn\Model;
 
 
+use BlackboardLearn\Service\OAuthServiceInterface;
+
 class AccessToken
 {
     /** @var string $access_token */
@@ -14,6 +16,11 @@ class AccessToken
     /** @var $epoch_expired */
     protected $epoch_expired;
 
+    /** @var OAuthServiceInterface $oauthService - OAuthService to be called in to renew access token. */
+    protected $oauthService;
+    /** @var ClientCredentials $oauthClientCredentials - Client credentials to be used in order to renew access token. */
+    protected $oauthClientCredentials;
+
     public function __construct()
     {
         $this->epoch_created = time();
@@ -24,6 +31,10 @@ class AccessToken
      */
     public function getAccessToken()
     {
+        if(!$this->isValid() && $this->oauthService !== null) {
+            $this->renewAccessToken();
+        }
+
         return $this->access_token;
     }
 
@@ -80,5 +91,40 @@ class AccessToken
     public function isValid()
     {
         return $this->getExpiresIn() > 0;
+    }
+
+    /**
+     * @param OAuthServiceInterface $oauthService
+     * @return AccessToken
+     */
+    public function setOauthService(OAuthServiceInterface $oauthService)
+    {
+        $this->oauthService = $oauthService;
+        return $this;
+    }
+
+    /**
+     * @param ClientCredentials $oauthClientCredentials
+     * @return AccessToken
+     */
+    public function setOauthClientCredentials(ClientCredentials $oauthClientCredentials)
+    {
+        $this->oauthClientCredentials = $oauthClientCredentials;
+        return $this;
+    }
+
+    private function renewAccessToken()
+    {
+        // Selects method for renewing access token.
+        if($this->oauthClientCredentials !== null) {
+            // Get new info.
+            $access_token = $this->oauthService->getTokenWithClientCredentials($this->oauthClientCredentials);
+            // Resets created time.
+            $this->epoch_created = time();
+            // Resets expiration
+            $this->setExpiresIn($access_token->getExpiresIn());
+            // Overwrite the old access token with the new one.
+            $this->setAccessToken($access_token->getAccessToken());
+        }
     }
 }
