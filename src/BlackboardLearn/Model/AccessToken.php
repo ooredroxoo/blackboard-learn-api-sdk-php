@@ -118,13 +118,13 @@ class AccessToken
         // Selects method for renewing access token.
         if($this->oauthClientCredentials !== null) {
             // Get new info.
-            $access_token = $this->oauthService->getTokenWithClientCredentials($this->oauthClientCredentials);
+            $new_access_token = $this->oauthService->getTokenWithClientCredentials($this->oauthClientCredentials);
             // Resets created time.
             $this->epoch_created = time();
             // Resets expiration
-            $this->setExpiresIn($access_token->getExpiresIn());
+            $this->setExpiresIn($new_access_token->getExpiresIn());
             // Overwrite the old access token with the new one.
-            $this->setAccessToken($access_token->getAccessToken());
+            $this->setAccessToken($new_access_token->getAccessToken());
         }
     }
 }
