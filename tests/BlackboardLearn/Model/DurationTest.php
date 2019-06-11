@@ -105,4 +105,56 @@ class DurationTest extends PHPUnit\Framework\TestCase
         $actual_json = json_encode(Duration::createFixedNumDaysDuration(180));
         $this->assertEquals($expected_json, $actual_json);
     }
+
+    /** @test */
+    public function duration_class_should_implement_init_with_stdClass()
+    {
+        $duration = Duration::createContinuousDuration();
+        $this->assertInstanceOf(\BlackboardLearn\Utils\InitWithStdClass::class, $duration, "Duration does not implements InitWithStdClass");
+    }
+
+    /** @test */
+    public function duration_should_convert_fixed_num_days_stdClass_to_duration()
+    {
+        $stdClass = new \stdClass();
+        $stdClass->type = "FixedNumDays";
+        $stdClass->daysOfUse = 199;
+
+        $duration = Duration::initWithStdClass($stdClass);
+        $this->assertEquals('FixedNumDays', $duration->getType(), "Duration was expected to be FixedNumDays");
+        $this->assertEquals(199, $duration->getDaysOfUse(), "Days of use does not match!");
+    }
+
+    /** @test */
+    public function duration_should_convert_continuous_stdClass_to_duration()
+    {
+        $stdClass = new \stdClass();
+        $stdClass->type = "Continuous";
+
+        $duration = Duration::initWithStdClass($stdClass);
+        $this->assertEquals('Continuous', $duration->getType());
+    }
+
+    /** @test */
+    public function duration_should_convert_date_range_stdClass_to_duration()
+    {
+        $stdClass = new \stdClass();
+        $stdClass->type = 'DateRange';
+        $stdClass->start = '2016-03-14T03:00:00.000Z';
+        $stdClass->end = '2216-03-15T02:59:59.000Z';
+
+        $duration = Duration::initWithStdClass($stdClass);
+        $this->assertEquals('DateRange', $duration->getType());
+        $this->assertEquals('2016-03-14', $duration->getStart()->format('Y-m-d'));
+        $this->assertEquals('2216-03-15', $duration->getEnd()->format('Y-m-d'));
+    }
+
+    /** @test */
+    public function duration_should_throw_exception_when_initialized_with_invalid_stdClass()
+    {
+        $this->expectException(\BlackboardLearn\Exception\InvalidArgumentException::class);
+        $stdClass = new \stdClass();
+        $stdClass->type = 'IncorrectType';
+        Duration::initWithStdClass($stdClass);
+    }
 }
