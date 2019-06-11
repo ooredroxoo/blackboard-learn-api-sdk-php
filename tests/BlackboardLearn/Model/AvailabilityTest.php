@@ -66,4 +66,33 @@ class AvailabilityTest extends TestCase
         $actualJsonObject = new Availability(Availability::AVAILABILITY_AVAILABLE, $continuousDuration);
         $this->assertEquals(json_encode($expectedJsonObject), json_encode($actualJsonObject), 'Availability should display duration if it was set.');
     }
+
+    /** @test */
+    public function availability_should_implement_init_with_stdClass_interface()
+    {
+        $availability = new Availability(Availability::AVAILABILITY_AVAILABLE, \BlackboardLearn\Model\Duration::createContinuousDuration());
+        $this->assertInstanceOf(\BlackboardLearn\Utils\InitWithStdClass::class, $availability, "Availability should implement InitWithStdClass");
+    }
+
+    /** @test */
+    public function availability_should_be_initialized_with_stdClass_object()
+    {
+        $stdClass = new \stdClass();
+        $stdClass->available = 'Yes';
+        $stdClass->duration = new stdClass();
+        $stdClass->duration->type = 'Continuous';
+
+        $availability = Availability::initWithStdClass($stdClass);
+        $this->assertEquals(true, $availability->isAvailable());
+        $this->assertEquals(\BlackboardLearn\Model\Duration::createContinuousDuration(), $availability->getDuration());
+    }
+
+    /** @test */
+    public function availability_should_throw_exception_if_receive_incorrect_stdClass_object()
+    {
+        $this->expectException(\BlackboardLearn\Exception\InvalidArgumentException::class);
+        $stdClass = new \stdClass();
+        $stdClass->available = true;
+        Availability::initWithStdClass($stdClass);
+    }
 }
