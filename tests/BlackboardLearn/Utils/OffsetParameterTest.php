@@ -8,7 +8,7 @@ class OffsetParameterTest extends TestCase
 {
 
     /** @test */
-    public function limit_parameter_name_should_be_limit()
+    public function offset_parameter_name_should_be_offset()
     {
         $offset = new OffsetParameter(1);
         $this->assertEquals(1, $offset->getValue(), "Offset is set wrongly");
