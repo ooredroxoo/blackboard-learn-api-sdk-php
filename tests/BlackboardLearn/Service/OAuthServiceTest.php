@@ -30,7 +30,7 @@ class OAuthServiceTest extends TestCase
 
         $client_credentials = new \BlackboardLearn\Model\ClientCredentials('123', '123');
 
-        $oauth_service = new OAuthService($client);
+        $oauth_service = new OAuthService($client, 'http://blackboard.com');
         $access_token = $oauth_service->getTokenWithClientCredentials($client_credentials);
 
         $this->assertInstanceOf(\BlackboardLearn\Model\AccessToken::class, $access_token);
@@ -51,7 +51,7 @@ class OAuthServiceTest extends TestCase
         $this->expectException(\BlackboardLearn\Exception\HTTPUnauthorizedException::class);
         $this->expectExceptionMessage('Invalid credentials');
 
-        $oauth_service = new OAuthService($client);
+        $oauth_service = new OAuthService($client, 'http://blackboard.com');
         $access_token = $oauth_service->getTokenWithClientCredentials($client_credentials);
 
         if($access_token) {
