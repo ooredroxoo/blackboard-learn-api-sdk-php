@@ -16,9 +16,4 @@ class NumericQueryParameter extends QueryParameter
 
         parent::__construct($name, $value);
     }
-
-    public function __toString()
-    {
-        return parent::__toString();
-    }
 }
