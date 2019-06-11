@@ -93,7 +93,8 @@ class AvailabilityTest extends TestCase
         $this->expectException(\BlackboardLearn\Exception\InvalidArgumentException::class);
         $stdClass = new \stdClass();
         $stdClass->available = true;
-        $stdClass->duration = \BlackboardLearn\Model\Duration::createContinuousDuration();
+        $stdClass->duration = new stdClass();
+        $stdClass->duration->type = 'Continuous';
         Availability::initWithStdClass($stdClass);
     }
 }
