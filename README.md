@@ -10,3 +10,23 @@
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=ooredroxoo_blackboard-learn-api-sdk-php&metric=ncloc)](https://sonarcloud.io/dashboard?id=ooredroxoo_blackboard-learn-api-sdk-php)
 
 Blackboard Learn PHP SDK for REST APIs
+
+## Usage
+
+```php
+<?php
+require_once 'vendor/autoload.php';
+
+$key = 'your-key';
+$secret = 'your-secret';
+$url = 'your-blackboard-url';
+$clientCredentials = new \BlackboardLearn\Model\ClientCredentials($key, $secret);
+$service = \BlackboardLearn\Service\ServicesManager::initWithClientCredentials($clientCredentials, $url);
+$termService = $service->getTermService();
+
+$limit = new \BlackboardLearn\Utils\LimitParameter(200); // 200 is the max limit for terms.
+$offset = new \BlackboardLearn\Utils\OffsetParameter(200);
+
+$terms = $termService->getTerms([$limit, $offset]);
+
+```
