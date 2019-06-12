@@ -2,6 +2,7 @@
 
 
 use BlackboardLearn\Service\TermService;
+use BlackboardLearn\Model\Term;
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
@@ -85,5 +86,32 @@ class TermServiceTest extends TestCase
 
         $termService = new TermService($client, $accessToken, 'http://blackboard.com');
         $termService->getTerms();
+    }
+
+    /** @test */
+    public function should_return_a_term_when_successfuly_trying_to_create_a_new_term()
+    {
+        $mock = new MockHandler([
+            new Response(200, [], '{"id": "_760_1","externalId": "api_testing","dataSourceId": "_2_1",
+              "name": "API Test","description": "<p>This is a API Test</p>","availability": {
+                "available": "Yes","duration": {"type": "Continuous"}}}')
+        ]);
+
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+        $accessToken = new \BlackboardLearn\Model\AccessToken();
+        $accessToken->setAccessToken('345');
+
+        $termService = new TermService($client, $accessToken, 'http://blackboard.com');
+        $term = new Term();
+        $term->setName("API Test")
+            ->setDescription("<p>This is a API Test</p>")
+            ->setDataSourceId("_2_1")
+            ->setExternalId('api_testing');
+        $newTerm = $termService->createTerm($term);
+
+        $this->assertEquals('_760_1', $newTerm->getId());
+        $this->assertEquals($term->getName(), $newTerm->getName());
+        $this->assertEquals($term->getDescription(), $newTerm->getDescription());
     }
 }

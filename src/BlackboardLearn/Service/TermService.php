@@ -74,9 +74,37 @@ class TermService
 
     }
 
-    public function createTerm()
+    public function createTerm(Term $term)
     {
+        $url = $this->api_url . self::BASEURL;
+        try {
+            $httpClient = $this->client;
+            $response = $httpClient->request('POST', $url, [
+                'headers' => [
+                    'Authorization' => "Bearer {$this->access_token->getAccessToken()}",
+                ],
+                'json' => $term
+            ]);
 
+            $json = json_decode($response->getBody()->getContents());
+            if(!$json) {
+                $responseBody = $response->getBody()->getContents();
+                throw new InvalidResponseException("The response could not be converted to JSON! Response Body: {$responseBody}");
+            }
+
+            return Term::initWithStdClass($json);
+
+        } catch (ClientException $exception) {
+            if($exception->getCode() === 400) {
+                $responseBody = $exception->getResponse()->getBody();
+                $responseMessageJson = json_decode($responseBody);
+                $message = $responseMessageJson->message ? $responseMessageJson->message . ': ' . $responseBody: 'BadRequest';
+                throw new BadRequestException($message);
+            }
+
+            throw $exception;
+
+        }
     }
 
     public function deleteTerm()
