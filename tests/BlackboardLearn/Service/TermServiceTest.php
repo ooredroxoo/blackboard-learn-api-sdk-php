@@ -2,7 +2,7 @@
 
 
 use BlackboardLearn\Service\TermService;
-use PHPUnit\Framework\TestCase;;
+use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;

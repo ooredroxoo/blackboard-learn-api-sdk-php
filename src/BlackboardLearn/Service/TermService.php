@@ -25,7 +25,7 @@ class TermService
         $this->api_url = $api_url;
     }
 
-    public function getTerms(array $parameters)
+    public function getTerms(array $parameters = [])
     {
         $url = $this->api_url . self::BASEURL;
         if (count($parameters) > 0) {
