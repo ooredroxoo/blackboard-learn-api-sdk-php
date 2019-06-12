@@ -32,4 +32,23 @@ class TermServiceTest extends TestCase
         $this->assertEquals("_123_1", $terms[0]->getId());
         $this->assertEquals("_456_1", $terms[1]->getId());
     }
+
+    /** @test */
+    public function should_throw_exception_if_response_is_not_json_when_trying_to_list_terms()
+    {
+
+        $this->expectException(\BlackboardLearn\Exception\InvalidResponseException::class);
+
+        $mock = new MockHandler([
+            new Response(200, [], '{asd => asd}')
+        ]);
+
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+        $accessToken = new \BlackboardLearn\Model\AccessToken();
+        $accessToken->setAccessToken('123');
+
+        $termService = new TermService($client, $accessToken, 'http://blackboard.com');
+        $termService->getTerms();
+    }
 }

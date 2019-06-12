@@ -1,5 +1,6 @@
 <?php namespace BlackboardLearn\Service;
 
+use BlackboardLearn\Exception\InvalidResponseException;
 use BlackboardLearn\Model\AccessToken;
 use BlackboardLearn\Model\Availability;
 use BlackboardLearn\Model\Duration;
@@ -42,7 +43,8 @@ class TermService
 
             $json = json_decode($response->getBody()->getContents());
             if(!$json) {
-                return null;
+                $responseBody = $response->getBody()->getContents();
+                throw new InvalidResponseException("The response could not be converted to JSON! Response Body: {$responseBody}");
             }
 
             $terms = [];
