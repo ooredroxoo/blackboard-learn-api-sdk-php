@@ -51,4 +51,22 @@ class TermServiceTest extends TestCase
         $termService = new TermService($client, $accessToken, 'http://blackboard.com');
         $termService->getTerms();
     }
+
+    /** @test */
+    public function should_return_empty_array_if_response_returns_no_terms_when_trying_to_retrieve_terms()
+    {
+        $mock = new MockHandler([
+            new Response(200, [], '{"results":[]}')
+        ]);
+
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+        $accessToken = new \BlackboardLearn\Model\AccessToken();
+        $accessToken->setAccessToken('234');
+
+        $termService = new TermService($client, $accessToken, 'http://blackboard.com');
+        $terms = $termService->getTerms();
+
+        $this->assertCount(0, $terms);
+    }
 }
