@@ -159,6 +159,6 @@ class TermServiceTest extends TestCase
             ->setDescription("<p>This is a API Test</p>")
             ->setDataSourceId("_2_1")
             ->setExternalId('api_testing');
-        $termService->createTerm();
+        $termService->createTerm($term);
     }
 }
