@@ -69,4 +69,21 @@ class TermServiceTest extends TestCase
 
         $this->assertCount(0, $terms);
     }
+
+    /** @test */
+    public function should_throw_exception_when_sending_an_invalid_parameter()
+    {
+        $this->expectException(\BlackboardLearn\Exception\BadRequestException::class);
+        $mock = new MockHandler([
+            new Response(400, [], '{"status":400,"message":"Paging limit may not exceed 200","extraInfo":"hash"}')
+        ]);
+
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+        $accessToken = new \BlackboardLearn\Model\AccessToken();
+        $accessToken->setAccessToken('234');
+
+        $termService = new TermService($client, $accessToken, 'http://blackboard.com');
+        $termService->getTerms();
+    }
 }

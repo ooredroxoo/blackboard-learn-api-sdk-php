@@ -1,5 +1,6 @@
 <?php namespace BlackboardLearn\Service;
 
+use BlackboardLearn\Exception\BadRequestException;
 use BlackboardLearn\Exception\InvalidResponseException;
 use BlackboardLearn\Model\AccessToken;
 use BlackboardLearn\Model\Availability;
@@ -55,6 +56,14 @@ class TermService
             return $terms;
 
         } catch (ClientException $exception) {
+            if($exception->getCode() === 400) {
+                $responseBody = $exception->getResponse()->getBody();
+                $responseMessageJson = json_decode($responseBody);
+                $message = $responseMessageJson->message ?: 'BadRequest';
+                throw new BadRequestException($message);
+            }
+
+            throw $exception;
 
         }
 
