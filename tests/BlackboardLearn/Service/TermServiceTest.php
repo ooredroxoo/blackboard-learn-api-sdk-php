@@ -154,6 +154,11 @@ class TermServiceTest extends TestCase
         $accessToken->setAccessToken('567');
 
         $termService = new TermService($client, $accessToken, 'http://blackboard.com');
-        $termService->getTerms();
+        $term = new Term();
+        $term->setName("API Test #2")
+            ->setDescription("<p>This is a API Test</p>")
+            ->setDataSourceId("_2_1")
+            ->setExternalId('api_testing');
+        $termService->createTerm();
     }
 }
