@@ -173,28 +173,28 @@ class Term implements JsonSerializable, InitWithStdClass
     public static function initWithStdClass(\stdClass $stdObj)
     {
         $term = new Term();
-        if($stdObj->id) {
+        if(isset($stdObj->id)) {
             $term->setId($stdObj->id);
         }
 
-        if($stdObj->externalId) {
+        if(isset($stdObj->externalId)) {
             $term->setExternalId($stdObj->externalId);
         }
 
-        if($stdObj->dataSourceId) {
+        if(isset($stdObj->dataSourceId)) {
             $term->setDataSourceId($stdObj->dataSourceId);
         }
 
-        if($stdObj->name) {
+        if(isset($stdObj->name)) {
             $term->setName($stdObj->name);
         }
 
-        if($stdObj->availability) {
+        if(isset($stdObj->availability)) {
             $availability = Availability::initWithStdClass($stdObj->availability);
             $term->setAvailability($availability);
         }
 
-        if($stdObj->description) {
+        if(isset($stdObj->description)) {
             $term->setDescription($stdObj->description);
         }
 
