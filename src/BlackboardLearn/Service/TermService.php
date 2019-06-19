@@ -76,35 +76,8 @@ class TermService
 
     public function createTerm(Term $term)
     {
-        $url = $this->api_url . self::BASEURL;
-        try {
-            $httpClient = $this->client;
-            $response = $httpClient->request('POST', $url, [
-                'headers' => [
-                    'Authorization' => "Bearer {$this->access_token->getAccessToken()}",
-                ],
-                'json' => $term
-            ]);
 
-            $json = json_decode($response->getBody()->getContents());
-            if(!$json) {
-                $responseBody = $response->getBody()->getContents();
-                throw new InvalidResponseException("The response could not be converted to JSON! Response Body: {$responseBody}");
-            }
-
-            return Term::initWithStdClass($json);
-
-        } catch (ClientException $exception) {
-            if($exception->getCode() === 400) {
-                $responseBody = $exception->getResponse()->getBody();
-                $responseMessageJson = json_decode($responseBody);
-                $message = $responseMessageJson->message ? $responseMessageJson->message . ': ' . $responseBody: 'BadRequest';
-                throw new BadRequestException($message);
-            }
-
-            throw $exception;
-
-        }
+        return $this->createOrUpdateMethod($term, 'POST');
     }
 
     public function deleteTerm(Term $term)
@@ -114,10 +87,19 @@ class TermService
 
     public function updateTerm(Term $term)
     {
-        $url = $this->api_url . self::BASEURL . "/{$term->getId()}";
+        return $this->createOrUpdateMethod($term, 'PATCH');
+    }
+
+    private function createOrUpdateMethod(Term $term, $httpMethod)
+    {
+        $url = $this->api_url . self::BASEURL;
+        if($httpMethod === 'PATCH') {
+            $url .= "/{$term->getId()}";
+        }
+
         try {
             $httpClient = $this->client;
-            $response = $httpClient->request('PATCH', $url, [
+            $response = $httpClient->request($httpMethod, $url, [
                 'headers' => [
                     'Authorization' => "Bearer {$this->access_token->getAccessToken()}",
                 ],
@@ -143,6 +125,5 @@ class TermService
             throw $exception;
 
         }
-
     }
 }
