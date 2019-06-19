@@ -237,4 +237,71 @@ class TermServiceTest extends TestCase
             ->setExternalId('api_testing');
         $termService->updateTerm($term);
     }
+
+    /** @test */
+    public function should_return_term_if_a_term_is_found_when_get_term_is_invoked()
+    {
+        $mock = new MockHandler([
+            new Response(200, [], '{"id": "_762_1","externalId": "api_testing_2","dataSourceId": "_2_1",
+              "name": "API Test #7","description": "<p>This is a API Test</p>","availability": {
+                "available": "Yes","duration": {"type": "Continuous"}}}')
+        ]);
+
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+        $accessToken = new \BlackboardLearn\Model\AccessToken();
+        $accessToken->setAccessToken('123');
+
+        $termService = new TermService($client, $accessToken, 'http://blackboard.com');
+        $term = new Term();
+        $term->setId('_762_1');
+        $found = $termService->getTerm($term);
+
+        $this->assertEquals('_762_1', $found->getId());
+        $this->assertEquals("API Test #7", $found->getName());
+        $this->assertEquals("<p>This is a API Test</p>", $found->getDescription());
+    }
+
+
+    /** @test */
+    public function should_throw_exception_if_response_is_not_json_when_trying_to_get_term()
+    {
+
+        $this->expectException(\BlackboardLearn\Exception\InvalidResponseException::class);
+
+        $mock = new MockHandler([
+            new Response(200, [], '{error => error}')
+        ]);
+
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+        $accessToken = new \BlackboardLearn\Model\AccessToken();
+        $accessToken->setAccessToken('234');
+
+        $termService = new TermService($client, $accessToken, 'http://blackboard.com');
+        $term = new Term();
+        $term->setId('_762_1');
+        $termService->getTerm($term);
+    }
+
+
+
+    /** @test */
+    public function should_throw_bad_request_exception_when_sending_an_invalid_query_to_get_term()
+    {
+        $this->expectException(\BlackboardLearn\Exception\BadRequestException::class);
+        $mock = new MockHandler([
+            new Response(400, [], '{"status": 400,"message": "REASON","extraInfo": "3f1d84b3870f4477a906a28a67f5e0876"}')
+        ]);
+
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+        $accessToken = new \BlackboardLearn\Model\AccessToken();
+        $accessToken->setAccessToken('345');
+
+        $termService = new TermService($client, $accessToken, 'http://blackboard.com');
+        $term = new Term();
+        $term->setName('123');
+        $termService->getTerm($term);
+    }
 }

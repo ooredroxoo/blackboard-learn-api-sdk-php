@@ -56,22 +56,35 @@ class TermService
             return $terms;
 
         } catch (ClientException $exception) {
-            if($exception->getCode() === 400) {
-                $responseBody = $exception->getResponse()->getBody();
-                $responseMessageJson = json_decode($responseBody);
-                $message = $responseMessageJson->message ?: 'BadRequest';
-                throw new BadRequestException($message);
-            }
-
+            $this->handle400Exception($exception);
             throw $exception;
-
         }
 
     }
 
-    public function getTerm()
+    public function getTerm(Term $term)
     {
+        $url = $this->api_url . self::BASEURL . "/{$term->getId()}";
 
+        try {
+            $httpClient = $this->client;
+            $response = $httpClient->request('GET', $url, [
+                'headers' => [
+                    'Authorization' => "Bearer {$this->access_token->getAccessToken()}",
+                ]
+            ]);
+
+            $json = json_decode($response->getBody()->getContents());
+            if(!$json) {
+                $responseBody = $response->getBody()->getContents();
+                throw new InvalidResponseException("The response could not be converted to JSON! Response Body: {$responseBody}");
+            }
+
+            return Term::initWithStdClass($json);
+        } catch (ClientException $exception) {
+            $this->handle400Exception($exception);
+            throw $exception;
+        }
     }
 
     public function createTerm(Term $term)
@@ -115,15 +128,19 @@ class TermService
             return Term::initWithStdClass($json);
 
         } catch (ClientException $exception) {
-            if($exception->getCode() === 400) {
-                $responseBody = $exception->getResponse()->getBody();
-                $responseMessageJson = json_decode($responseBody);
-                $message = $responseMessageJson->message ? $responseMessageJson->message . ': ' . $responseBody: 'BadRequest';
-                throw new BadRequestException($message);
-            }
-
+            $this->handle400Exception($exception);
             throw $exception;
 
+        }
+    }
+
+    private function handle400Exception($exception)
+    {
+        if($exception->getCode() === 400) {
+            $responseBody = $exception->getResponse()->getBody();
+            $responseMessageJson = json_decode($responseBody);
+            $message = $responseMessageJson->message ? $responseMessageJson->message . ': ' . $responseBody: 'BadRequest';
+            throw new BadRequestException($message);
         }
     }
 }
