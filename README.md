@@ -30,3 +30,7 @@ $offset = new \BlackboardLearn\Utils\OffsetParameter(200);
 $terms = $termService->getTerms([$limit, $offset]);
 
 ```
+
+## Wiki
+
+See more usage and tips on [our wiki](https://github.com/ooredroxoo/blackboard-learn-api-sdk-php/wiki)
