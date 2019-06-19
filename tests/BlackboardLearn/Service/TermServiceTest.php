@@ -161,4 +161,80 @@ class TermServiceTest extends TestCase
             ->setExternalId('api_testing');
         $termService->createTerm($term);
     }
+
+
+
+    /** @test */
+    public function should_return_a_term_when_successfuly_trying_to_update_a_term()
+    {
+        $mock = new MockHandler([
+            new Response(200, [], '{"id": "_760_1","externalId": "api_testing","dataSourceId": "_2_1",
+              "name": "API Test #3","description": "<p>This is a API Test</p>","availability": {
+                "available": "Yes","duration": {"type": "Continuous"}}}')
+        ]);
+
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+        $accessToken = new \BlackboardLearn\Model\AccessToken();
+        $accessToken->setAccessToken('567');
+
+        $termService = new TermService($client, $accessToken, 'http://blackboard.com');
+        $term = new Term();
+        $term->setName("API Test #3")
+            ->setDescription("<p>This is a API Test</p>")
+            ->setDataSourceId("_2_1")
+            ->setExternalId('api_testing');
+        $updated = $termService->updateTerm($term);
+
+        $this->assertEquals('_760_1', $updated->getId());
+        $this->assertEquals($term->getName(), $updated->getName());
+        $this->assertEquals($term->getDescription(), $updated->getDescription());
+    }
+
+
+    /** @test */
+    public function should_throw_exception_if_response_is_not_json_when_trying_to_update_term()
+    {
+
+        $this->expectException(\BlackboardLearn\Exception\InvalidResponseException::class);
+
+        $mock = new MockHandler([
+            new Response(200, [], '{error => error}')
+        ]);
+
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+        $accessToken = new \BlackboardLearn\Model\AccessToken();
+        $accessToken->setAccessToken('789');
+
+        $termService = new TermService($client, $accessToken, 'http://blackboard.com');
+        $term = new Term();
+        $term->setName("API Test #4")
+            ->setDescription("<p>This is a API Test</p>")
+            ->setDataSourceId("_2_1")
+            ->setExternalId('api_testing');
+        $termService->updateTerm($term);
+    }
+
+    /** @test */
+    public function should_throw_bad_request_exception_when_updating_an_invalid_term()
+    {
+        $this->expectException(\BlackboardLearn\Exception\BadRequestException::class);
+        $mock = new MockHandler([
+            new Response(400, [], '{"status": 400,"message": "REASON","extraInfo": "3f1d84b3870f4477a906a28a67f5e0876"}')
+        ]);
+
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+        $accessToken = new \BlackboardLearn\Model\AccessToken();
+        $accessToken->setAccessToken('890');
+
+        $termService = new TermService($client, $accessToken, 'http://blackboard.com');
+        $term = new Term();
+        $term->setName("API Test #5")
+            ->setDescription("<p>Another API Test</p>")
+            ->setDataSourceId("_2_1")
+            ->setExternalId('api_testing');
+        $termService->updateTerm($term);
+    }
 }
