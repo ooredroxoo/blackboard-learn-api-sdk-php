@@ -2,6 +2,7 @@
 
 use BlackboardLearn\Exception\BadRequestException;
 use BlackboardLearn\Exception\InvalidResponseException;
+use BlackboardLearn\Exception\NotFoundException;
 use BlackboardLearn\Model\AccessToken;
 use BlackboardLearn\Model\Availability;
 use BlackboardLearn\Model\Duration;
@@ -83,6 +84,7 @@ class TermService
             return Term::initWithStdClass($json);
         } catch (ClientException $exception) {
             $this->handle400Exception($exception);
+            $this->handle404Exception($exception);
             throw $exception;
         }
     }
@@ -95,7 +97,27 @@ class TermService
 
     public function deleteTerm(Term $term)
     {
+        $url = $this->api_url . self::BASEURL . "/{$term->getId()}";
 
+        try {
+            $httpClient = $this->client;
+            $response = $httpClient->request('DELETE', $url, [
+                'headers' => [
+                    'Authorization' => "Bearer {$this->access_token->getAccessToken()}",
+                ]
+            ]);
+
+            if($response->getStatusCode() === 204) {
+                return true;
+            }
+
+            return false;
+
+        } catch (ClientException $exception) {
+            $this->handle400Exception($exception);
+            $this->handle404Exception($exception);
+            throw $exception;
+        }
     }
 
     public function updateTerm(Term $term)
@@ -141,6 +163,14 @@ class TermService
             $responseMessageJson = json_decode($responseBody);
             $message = $responseMessageJson->message ? $responseMessageJson->message . ': ' . $responseBody: 'BadRequest';
             throw new BadRequestException($message);
+        }
+    }
+
+    private function handle404Exception($exception)
+    {
+        if($exception->getCode() === 404) {
+            $message = 'Term not found!';
+            throw new NotFoundException($message);
         }
     }
 }

@@ -304,4 +304,62 @@ class TermServiceTest extends TestCase
         $term->setName('123');
         $termService->getTerm($term);
     }
+
+    /** @test */
+    public function should_return_true_if_a_ter_was_deleted()
+    {
+        $mock = new MockHandler([
+            new Response(204, [], '')
+        ]);
+
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+        $accessToken = new \BlackboardLearn\Model\AccessToken();
+        $accessToken->setAccessToken('123');
+
+        $termService = new TermService($client, $accessToken, 'http://blackboard.com');
+        $term = new Term();
+        $term->setId('_762_1');
+        $isDeleted = $termService->deleteTerm($term);
+
+        $this->assertTrue($isDeleted);
+    }
+
+    /** @test */
+    public function should_throw_not_found_exception_if_the_term_cant_be_found_upon_exclusion()
+    {
+        $this->expectException(\BlackboardLearn\Exception\NotFoundException::class);
+        $mock = new MockHandler([
+            new Response(404, [], '{"status": 404,"message": "REASON","extraInfo": "asd"}')
+        ]);
+
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+        $accessToken = new \BlackboardLearn\Model\AccessToken();
+        $accessToken->setAccessToken('345');
+
+        $termService = new TermService($client, $accessToken, 'http://blackboard.com');
+        $term = new Term();
+        $term->setId('_12013_1');
+        $termService->deleteTerm($term);
+    }
+
+    /** @test */
+    public function should_throw_bad_request_exception_if_the_api_responds_with_400()
+    {
+        $this->expectException(\BlackboardLearn\Exception\BadRequestException::class);
+        $mock = new MockHandler([
+            new Response(400, [], '{"status": 400,"message": "REASON","extraInfo": "asde"}')
+        ]);
+
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+        $accessToken = new \BlackboardLearn\Model\AccessToken();
+        $accessToken->setAccessToken('345');
+
+        $termService = new TermService($client, $accessToken, 'http://blackboard.com');
+        $term = new Term();
+        $term->setName('456');
+        $termService->deleteTerm($term);
+    }
 }
