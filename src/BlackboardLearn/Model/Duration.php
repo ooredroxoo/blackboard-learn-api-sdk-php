@@ -2,15 +2,17 @@
 
 
 use BlackboardLearn\Exception\DateRangeInvalidException;
+use BlackboardLearn\Exception\InvalidArgumentException;
+use BlackboardLearn\Utils\InitWithStdClass;
 use \DateTime;
 use JsonSerializable;
 
-class Duration implements JsonSerializable
+class Duration implements JsonSerializable, InitWithStdClass
 {
 
-    public const DURATION_TYPE_CONTINUOUS = 'Continuous';
-    public const DURATION_TYPE_DATERANGE = 'DateRange';
-    public const DURATION_TYPE_FIXEDNUMDAYS = 'FixedNumDays';
+    const DURATION_TYPE_CONTINUOUS = 'Continuous';
+    const DURATION_TYPE_DATERANGE = 'DateRange';
+    const DURATION_TYPE_FIXEDNUMDAYS = 'FixedNumDays';
 
     /** @var string $type */
     protected $type;
@@ -160,5 +162,24 @@ class Duration implements JsonSerializable
         }
 
         return $simple_object_to_be_turned_into_json;
+    }
+
+    public static function initWithStdClass(\stdClass $stdObj)
+    {
+        if($stdObj->type === self::DURATION_TYPE_CONTINUOUS) {
+            return self::createContinuousDuration();
+        }
+
+        if($stdObj->type === self::DURATION_TYPE_DATERANGE) {
+            $start = \DateTime::createFromFormat('Y-m-d\TH:i:s.000\Z', $stdObj->start) ?: null;
+            $end = \DateTime::createFromFormat('Y-m-d\TH:i:s.000\Z', $stdObj->end) ?: null;
+            return self::createDateRangeDuration($start, $end);
+        }
+
+        if($stdObj->type === self::DURATION_TYPE_FIXEDNUMDAYS) {
+            return self::createFixedNumDaysDuration($stdObj->daysOfUse);
+        }
+
+        throw new InvalidArgumentException("StdClass Object could not be converted to a Duration Object");
     }
 }

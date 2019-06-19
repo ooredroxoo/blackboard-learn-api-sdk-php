@@ -2,9 +2,10 @@
 
 
 use BlackboardLearn\Exception\IllegalJsonSerializationStateException;
+use BlackboardLearn\Utils\InitWithStdClass;
 use JsonSerializable;
 
-class Term implements JsonSerializable
+class Term implements JsonSerializable, InitWithStdClass
 {
     /** @var string $id - The primary ID of the term. */
     protected $id;
@@ -163,5 +164,40 @@ class Term implements JsonSerializable
 
         return $jsonRepresentation;
 
+    }
+
+    /**
+     * @param \stdClass $stdObj
+     * @return Term
+     */
+    public static function initWithStdClass(\stdClass $stdObj)
+    {
+        $term = new Term();
+        if(isset($stdObj->id)) {
+            $term->setId($stdObj->id);
+        }
+
+        if(isset($stdObj->externalId)) {
+            $term->setExternalId($stdObj->externalId);
+        }
+
+        if(isset($stdObj->dataSourceId)) {
+            $term->setDataSourceId($stdObj->dataSourceId);
+        }
+
+        if(isset($stdObj->name)) {
+            $term->setName($stdObj->name);
+        }
+
+        if(isset($stdObj->availability)) {
+            $availability = Availability::initWithStdClass($stdObj->availability);
+            $term->setAvailability($availability);
+        }
+
+        if(isset($stdObj->description)) {
+            $term->setDescription($stdObj->description);
+        }
+
+        return $term;
     }
 }

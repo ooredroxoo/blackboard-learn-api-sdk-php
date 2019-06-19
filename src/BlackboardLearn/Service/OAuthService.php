@@ -10,10 +10,13 @@ class OAuthService implements OAuthServiceInterface
 {
     /** @var Client $client */
     protected $client;
+    /** @var string $apiURL */
+    protected $apiURL;
 
-    public function __construct(Client $client)
+    public function __construct(Client $client, $apiURL)
     {
         $this->client = $client;
+        $this->apiURL = $apiURL;
     }
 
     /**
@@ -27,7 +30,7 @@ class OAuthService implements OAuthServiceInterface
         try {
             $httpClient = $this->client;
             $authBasic = base64_encode($clientCredentials->getClientKey() . ':' . $clientCredentials->getClientSecret());
-            $response = $httpClient->request('POST', '/learn/api/public/v1/oauth2/token', [
+            $response = $httpClient->request('POST', $this->apiURL . '/learn/api/public/v1/oauth2/token', [
                 'headers' => [
                     'Authorization' => "Basic {$authBasic}",
                     'Content-Type' => 'application/x-www-form-urlencoded'
